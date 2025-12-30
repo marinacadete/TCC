@@ -18,7 +18,7 @@ pacman::p_load(
 library(conflicted)
 conflict_prefer("select", "dplyr")
 conflict_prefer("filter", "dplyr")
-conflict_prefer("lag",    "dplyr")
+conflict_prefer("year", "lubridate")
 
 # ============================================================
 # Opções globais

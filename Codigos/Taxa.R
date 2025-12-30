@@ -1,4 +1,4 @@
-source("rdocs/Trat_Dados.R")
+source("Codigos/Tratamento.R")
 
 # ---------------------------------------------------------------------------- #
 # Projeção Brasil                                                               ----
@@ -147,7 +147,7 @@ taxa_idade_wide <- taxa_fem_idade_agrupado %>%
 # ---------------------------------------------------------------------------- #
 # Proporção Raça/Cor                                                           # ----
 # ---------------------------------------------------------------------------- #
-pop_fem_raca <- dados_prop %>%
+pop_fem_raca <- prop_RacaCor %>%
   filter(!Local %in% c("Centro-Oeste", "Nordeste", "Norte", 
                        "Sudeste", "Sul", "Brasil")) %>%
   mutate(pop = as.numeric(População)) %>%
