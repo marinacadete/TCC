@@ -1,0 +1,1 @@
+Todos os pacotes utilizados neste trabalho estão listados e documentados no arquivo packages.R
