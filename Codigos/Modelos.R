@@ -1,7 +1,45 @@
-source("rdocs/Trat_Dados.R")
+source("1-Tratamento.R")
+
+# ---- Agrupamento para o Modelo -----------------------------------------------
+
+dados_modelo_2023 <- sim %>%
+  filter(Ano == 2023) %>% 
+  count(Ano, Regiao, Regiao,
+        fe_resumida, raca_cor, estciv_grupo, ESC_GRUPO, causa_categoria,
+        name = "n_homicidios") %>%
+  drop_na()
+
+dados_modelo <- sim %>%
+  count(Ano, Regiao, Regiao,
+        fe_resumida, raca_cor, estciv_grupo, ESC_GRUPO, causa_categoria,
+        name = "n_homicidios") %>%
+  drop_na()
+
+# ── Modelo ────────────────────────────────────────────────────────────────────
+
+modelo_poisson <- glm(
+  n_homicidios ~ raca_cor + ESC_GRUPO + Regiao + fe_resumida + estciv_grupo + causa_categoria,
+  data   = dados_modelo_2023,
+  family = poisson(link = "log")
+)
+
+modelo_poisson <- glm(
+  n_homicidios ~ factor(Ano) + factor(raca_cor) + 
+    factor(ESC_GRUPO) + factor(Regiao) + factor(fe_resumida) + 
+    factor(estciv_grupo) + factor(causa_categoria),
+  data   = dados_modelo,
+  family = poisson(link = "log")
+)
+
+summary(modelo_poisson)
+
+fit.model <- modelo_poisson #; attach(sim)
+source("Codigos/source/Envel_pois.R")
+source("Codigos/source/Diag_pois.R")
+
 
 # ============================================================================ #
-#                   MODELANDO A OCORRENCIA DE HOMICÍDIO                        # 
+#                   MODELANDO A OCORRENCIA DE HOMICÍDIO                        
 # ============================================================================ # ----
 contagem_uf_2022 <- sim %>%
   filter(Ano==2022) %>% 

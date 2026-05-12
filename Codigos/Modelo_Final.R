@@ -1,4 +1,4 @@
-source("rdocs/Trat_Dados.R")
+source("Codigos/Tratamento.R")
 
 # ============================================================================ #
 #                 MODELANDO O LOG DA OCORRÊNCIA DE HOMICÍDIO                   #
@@ -54,8 +54,8 @@ modelo_pois_2023 <- glm(
   data = modelo_2023); summary(modelo_pois_2023)
 
 fit.model <- modelo_pois_2023
-source("rdocs/Envel_pois.R")
-source("rdocs/Diag_pois.R")
+source("Codigos/source/Envel_pois.R")
+source("Codigos/source/Diag_pois.R")
 
 library(AER)
 AER::dispersiontest(modelo_pois_2023)
