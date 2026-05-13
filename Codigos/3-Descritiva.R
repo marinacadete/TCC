@@ -435,8 +435,7 @@ sim %>%
 ggsave("Imagens/3b_local_ocorrencia_ano.pdf", width = 158, height = 100, units = "mm")
 
 # ---- Cruzamentos -------------------------------------------------------------
-# Os cruzamentos integram causa (como) com o perfil (quem) e o contexto (onde)
-# Todos referentes a 2023 para facilitar a interpretação do ano mais recente
+# Todos os cruzamentos são referentes a 2023 para facilitar a interpretação
 
 sim2023 <- sim %>% filter(Ano == 2023)
  
