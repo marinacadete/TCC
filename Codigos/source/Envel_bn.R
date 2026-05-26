@@ -41,7 +41,7 @@ med =   apply(e,1,mean)
 faixa =   range(td,e1,e2)
 par(pty="s")
 qqnorm(td,xlab="Quantil da N(0,1)",
-       ylab="Componente do Desvio", ylim=faixa, pch=16, main="",cex=2, cex.axis=1.5, cex.lab=1.5)
+       ylab="Componente do Desvio", ylim=faixa, pch=16, main="",cex=1, cex.axis=1.5, cex.lab=1.5)
 par(new=TRUE)
 #
 qqnorm(e1,axes=F,xlab="",ylab="",type="l",ylim=faixa,lty=1, main="",lwd=2)

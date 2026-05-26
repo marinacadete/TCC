@@ -10,7 +10,7 @@ pacman::p_load(
   RColorBrewer, scales, nortest,
   skimr, xtable, geobr, sf, ggrepel,
   abjutils, grDevices, wordcloud,
-  MASS, AER, ragg
+  MASS, AER, ragg, gamlss 
 )
 
 library(conflicted)

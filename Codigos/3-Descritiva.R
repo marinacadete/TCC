@@ -156,7 +156,7 @@ ggplot(dados_mapa_painel) +
 ggsave("Imagens/1b_mapa_uf.pdf", width = 190, height = 150, units = "mm")
 
 # ---- Perfil da Vítima --------------------------------------------------------
-# Raça/Cor
+# ---- Raça/Cor ----------------------------------------------------------------
 tab_raca <- sim %>%
   filter(!is.na(raca_cor)) %>%
   count(Ano, raca_cor, name = "obitos") %>%
@@ -587,3 +587,60 @@ ggplot(cruz_causa_loco, aes(x = lococor_grupo, y = prop, fill = causa_categoria)
   guides(fill = guide_legend(nrow = 2))
 
 ggsave("Imagens/4d_causa_local_2023.pdf", width = 158, height = 100, units = "mm")
+
+
+# Faixa etária r Escolaridade
+fe_esc <- sim2023 %>%
+  filter(!is.na(fe_resumida), !is.na(ESC_GRUPO)) %>%
+  count(fe_resumida, ESC_GRUPO, name = "obitos") %>%
+  group_by(fe_resumida) %>%
+  mutate(prop = round(obitos / sum(obitos) * 100, 1)) %>%
+  ungroup() %>%
+  mutate(
+    fe_resumida = str_replace(fe_resumida, " anos", "\nanos")
+  )
+
+xtable(fe_esc)
+
+ggplot(fe_esc, aes(x = fe_resumida, y = prop, fill = ESC_GRUPO)) +
+  geom_col(position = "fill", color = "white", linewidth = 0.3) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_fill_manual(values = cinzas_5, name = "Escolaridade") +
+  labs(x = "Faixa Etária", y = "Proporção de óbitos (%)") +
+  theme_light() +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    legend.position = "bottom",
+    legend.title = element_text(face = "plain")
+  ) +
+  guides(fill = guide_legend(nrow = 1))
+
+ggsave("Imagens/4e_faixa_escolaridade_2023.pdf", width = 158, height = 100, units = "mm")
+
+# Faixa etária × Raça/cor
+fe_raca <- sim2023 %>%
+  filter(!is.na(fe_resumida), !is.na(raca_cor)) %>%
+  count(fe_resumida, raca_cor, name = "obitos") %>%
+  group_by(fe_resumida) %>%
+  mutate(prop = round(obitos / sum(obitos) * 100, 1)) %>%
+  ungroup() %>%
+  mutate(
+    fe_resumida = str_replace(fe_resumida, " anos", "\nanos")
+  )
+
+xtable(fe_raca)
+
+ggplot(fe_raca, aes(x = fe_resumida, y = prop, fill = raca_cor)) +
+  geom_col(position = "fill", color = "white", linewidth = 0.3) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_fill_manual(values = cinzas_3, name = "Raça/Cor") +
+  labs(x = "Faixa Etária", y = "Proporção de óbitos (%)") +
+  theme_light() +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 0.5),
+    legend.position = "bottom",
+    legend.title = element_text(face = "plain")
+  ) +
+  guides(fill = guide_legend(nrow = 1))
+
+ggsave("Imagens/4f_faixa_raca_2023.pdf", width = 158, height = 100, units = "mm")

@@ -75,7 +75,7 @@ colunas_excluir <- c(
 
 sim <- dados_sim_completos %>%
   select(-all_of(colunas_excluir)) %>%
-  filter(!is.na(RACACOR), RACACOR != "Indígena") %>%
+  filter(!is.na(RACACOR), RACACOR != "Indígena", IDADEanos != 14) %>%
   mutate(
     
     Ano = year(DTOBITO),
