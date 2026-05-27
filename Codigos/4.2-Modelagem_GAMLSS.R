@@ -58,17 +58,9 @@ plot(modelo_gamlss_pois_PIG)
 wp(modelo_gamlss_pois_PIG)
 
 
-# ZIG (Poisson inflacionada de zeros)
-modelo_gamlss_pois_ZIP <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
-                                 family = ZIP, data = base_regressao)
-
-summary(modelo_gamlss_pois_ZIP)
-plot(modelo_gamlss_pois_ZIP)
-wp(modelo_gamlss_pois_ZIP)
-
 # ---- GAMLSS Binomial Negativa ------------------------------------------------
 
-# NBI
+# NBI (variância quadrática)
 modelo_gamlss_bn_NBI <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
                               family = NBI, data = base_regressao)
 
@@ -84,13 +76,6 @@ summary(modelo_gamlss_bn_NBII)
 plot(modelo_gamlss_bn_NBII)
 wp(modelo_gamlss_bn_NBII)
 
-# ZINBI
-modelo_gamlss_bn_ZINBI <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
-                                 family = ZINBI, data = base_regressao)
-
-summary(modelo_gamlss_bn_ZINBI)
-plot(modelo_gamlss_bn_ZINBI)
-wp(modelo_gamlss_bn_ZINBI)
 
 
 

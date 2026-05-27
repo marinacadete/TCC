@@ -68,6 +68,8 @@ for (causa in names(modelos_pois)) {
   title(main = paste("Poisson -", causa))
 }
 
+par(mfrow = c(1, 1))
+
 # ---- Modelo BN ---------------------------------------------------------------
 
 modelo_bn_simples_arma         <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_arma)
@@ -97,3 +99,4 @@ for (causa in names(modelos_bn)) {
   source("Codigos/source/Envel_bn.R")
   title(main = paste("BN -", causa))
 }
+
