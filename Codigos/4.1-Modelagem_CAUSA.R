@@ -1,5 +1,5 @@
 # ============================================================================ #
-#                 MODELAGEM SUPER SIMPLES por CAUSA                             ----
+#                 MODELAGEM SUPER SIMPLES por CAUSA 2023                        ----
 # ============================================================================ #
 
 source("Codigos/1-Tratamento.R")
@@ -7,6 +7,7 @@ source("Codigos/1-Tratamento.R")
 # ---- Base para a Regressão ---------------------------------------------------
 
 base_regressao <- sim %>%
+  filter(Ano == 2023) %>%
   group_by(Ano, munResUf, Regiao, raca_cor,causa_categoria) %>%
   summarise(obitos = n(), .groups = "drop") %>%
   left_join(
@@ -20,10 +21,10 @@ base_regressao <- sim %>%
 # ---- Categorias de Referência ------------------------------------------------
 
 base_regressao$raca_cor <- relevel(factor(base_regressao$raca_cor), ref = "Branca")
-base_regressao$Regiao   <- relevel(factor(base_regressao$Regiao), ref = "Centro-Oeste")
+base_regressao$Regiao   <- relevel(factor(base_regressao$Regiao), ref = "Norte")
 
 # ============================================================================ #
-#                 Modelagem 2020-2023
+#                 Modelagem 2023
 # ============================================================================ #
 
 base_regressao_arma         <- base_regressao %>% filter(causa_categoria == "Lesão por arma de fogo")
@@ -34,11 +35,11 @@ base_regressao_outros       <- base_regressao %>% filter(causa_categoria == "Out
 
 # ---- Modelo Poisson ----------------------------------------------------------
 
-modelo_pois_simples_arma         <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_arma)
-modelo_pois_simples_cortante     <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_cortante)
-modelo_pois_simples_enforcamento <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_enforcamento)
-modelo_pois_simples_mausTratos   <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_mausTratos)
-modelo_pois_simples_outros       <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_outros)
+modelo_pois_simples_arma         <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_arma)
+modelo_pois_simples_cortante     <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_cortante)
+modelo_pois_simples_enforcamento <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_enforcamento)
+modelo_pois_simples_mausTratos   <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_mausTratos)
+modelo_pois_simples_outros       <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_outros)
 
 summary(modelo_pois_simples_arma)
 summary(modelo_pois_simples_cortante)
@@ -52,34 +53,28 @@ dispersiontest(modelo_pois_simples_enforcamento)
 dispersiontest(modelo_pois_simples_mausTratos)
 dispersiontest(modelo_pois_simples_outros) 
 
+modelos_pois <- list(
+  "Arma de fogo" = modelo_pois_simples_arma,
+  "Cortante"     = modelo_pois_simples_cortante,
+  "Enforcamento" = modelo_pois_simples_enforcamento,
+  "Maus tratos"  = modelo_pois_simples_mausTratos,
+  "Outros"       = modelo_pois_simples_outros
+)
 
-fit.model <- modelo_pois_simples_arma
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
-
-fit.model <- modelo_pois_simples_cortante
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
-
-fit.model <- modelo_pois_simples_enforcamento
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
-
-fit.model <- modelo_pois_simples_mausTratos
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
-
-fit.model <- modelo_pois_simples_outros
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
+par(mfrow = c(2, 3))
+for (causa in names(modelos_pois)) {
+  fit.model <- modelos_pois[[causa]]
+  source("Codigos/source/Envel_pois.R")
+  title(main = paste("Poisson -", causa))
+}
 
 # ---- Modelo BN ---------------------------------------------------------------
 
-modelo_bn_simples_arma         <- glm.nb(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), data = base_regressao_arma)
-modelo_bn_simples_cortante     <- glm.nb(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), data = base_regressao_cortante)
-modelo_bn_simples_enforcamento <- glm.nb(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), data = base_regressao_enforcamento)
-modelo_bn_simples_mausTratos   <- glm.nb(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), data = base_regressao_mausTratos)
-modelo_bn_simples_outros       <- glm.nb(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), data = base_regressao_outros)
+modelo_bn_simples_arma         <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_arma)
+modelo_bn_simples_cortante     <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_cortante)
+modelo_bn_simples_enforcamento <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_enforcamento)
+modelo_bn_simples_mausTratos   <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_mausTratos)
+modelo_bn_simples_outros       <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_outros)
 
 summary(modelo_bn_simples_arma)
 summary(modelo_bn_simples_cortante)
@@ -87,57 +82,18 @@ summary(modelo_bn_simples_enforcamento)
 summary(modelo_bn_simples_mausTratos)
 summary(modelo_bn_simples_outros) 
 
-fit.model <- modelo_bn_simples_arma
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
+modelos_bn <- list(
+  "Arma de fogo" = modelo_bn_simples_arma,
+  "Cortante"     = modelo_bn_simples_cortante,
+  "Enforcamento" = modelo_bn_simples_enforcamento,
+  "Maus tratos"  = modelo_bn_simples_mausTratos,
+  "Outros"       = modelo_bn_simples_outros
+)
 
-fit.model <- modelo_bn_simples_cortante
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
+par(mfrow = c(2, 3))
 
-fit.model <- modelo_bn_simples_enforcamento
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
-
-fit.model <- modelo_bn_simples_mausTratos
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
-
-fit.model <- modelo_bn_simples_outros
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
-
-# ============================================================================ #
-#                 Modelagem 2023 APENAS
-# ============================================================================ #
-
-base_2023 <- base_regressao %>%
-  filter(Ano == 2023)
-
-# ---- Modelo Poisson ----------------------------------------------------------
-
-modelo_pois_simples_2023 <- glm(obitos ~ raca_cor + Regiao + log(pop),
-                                family = poisson, data = base_2023)
-modelo_pois_simples_2023 <- glm(obitos ~ raca_cor + Regiao + offset(log(pop)),
-                                family = poisson, data = base_2023)
-
-summary(modelo_pois_simples_2023)
-dispersiontest(modelo_pois_simples_2023)
-plot(modelo_pois_simples_2023)
-fit.model <- modelo_pois_simples_2023
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
-
-# ---- Modelo BN ---------------------------------------------------------------
-
-modelo_bn_simples_2023 <- glm.nb(obitos ~ raca_cor + Regiao + log(pop),
-                                 data = base_2023)
-modelo_bn_simples_2023 <- glm.nb(obitos ~ raca_cor + Regiao + offset(log(pop)),
-                                 data = base_2023)
-
-summary(modelo_bn_simples_2023)
-plot(modelo_bn_simples_2023)
-fit.model <- modelo_bn_simples_2023
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
-
+for (causa in names(modelos_bn)) {
+  fit.model <- modelos_bn[[causa]]
+  source("Codigos/source/Envel_bn.R")
+  title(main = paste("BN -", causa))
+}

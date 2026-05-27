@@ -1,5 +1,5 @@
 # ============================================================================ #
-#                 MODELAGEM: QUASI-POISSON e GAMLSS                             ----
+#                 MODELAGEM QUASI e GAMLSS                                      ----
 # ============================================================================ #
 
 source("Codigos/1-Tratamento.R")
@@ -7,7 +7,9 @@ source("Codigos/1-Tratamento.R")
 # ---- Base para a Regressão ---------------------------------------------------
 
 base_regressao <- sim %>%
-  group_by(Ano, munResUf, Regiao, raca_cor, causa_categoria) %>%
+  filter(fe_resumida == "15 a 29 anos",
+         Ano == 2023) %>% 
+  group_by(Ano, munResUf, Regiao, raca_cor) %>%
   summarise(obitos = n(), .groups = "drop") %>%
   left_join(
     dados_projecao %>%
@@ -20,144 +22,80 @@ base_regressao <- sim %>%
 # ---- Categorias de Referência ------------------------------------------------
 
 base_regressao$raca_cor <- relevel(factor(base_regressao$raca_cor), ref = "Branca")
-base_regressao$Regiao   <- relevel(factor(base_regressao$Regiao), ref = "Centro-Oeste")
+base_regressao$Regiao   <- relevel(factor(base_regressao$Regiao), ref = "Norte")
 
 # ============================================================================ #
-#                 Modelagem 2020-2023
+#                 Modelagem 2023
 # ============================================================================ #
 
-base_regressao_arma         <- base_regressao %>% filter(causa_categoria == "Lesão por arma de fogo")
-base_regressao_cortante     <- base_regressao %>% filter(causa_categoria == "Lesão por instrumento perfurante, cortante ou contundente")
-base_regressao_enforcamento <- base_regressao %>% filter(causa_categoria == "Lesão por enforcamento")
-base_regressao_mausTratos   <- base_regressao %>% filter(causa_categoria == "Lesão por maus tratos")
-base_regressao_outros       <- base_regressao %>% filter(causa_categoria == "Outros")
+# ---- Modelo Quasi-Vero -------------------------------------------------------
 
-# ---- Modelo Quasi-Poisson ----------------------------------------------------
+modelo_quasi_vero_simples <- glm(obitos ~ raca_cor + Regiao + log(pop),
+                                 family = quasi(link = log, variance = "mu"),
+                                 data = base_regressao)
 
-modelo_quasi_simples_arma         <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = quasipoisson, data = base_regressao_arma)
-modelo_quasi_simples_cortante     <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = quasipoisson, data = base_regressao_cortante)
-modelo_quasi_simples_enforcamento <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = quasipoisson, data = base_regressao_enforcamento)
-modelo_quasi_simples_mausTratos   <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = quasipoisson, data = base_regressao_mausTratos)
-modelo_quasi_simples_outros       <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = quasipoisson, data = base_regressao_outros)
+summary(modelo_quasi_vero_simples)
+summary(modelo_quasi_vero_simples)$dispersion
+plot(modelo_quasi_vero_simples)
 
-summary(modelo_quasi_simples_arma)
-summary(modelo_quasi_simples_cortante)
-summary(modelo_quasi_simples_enforcamento)
-summary(modelo_quasi_simples_mausTratos)
-summary(modelo_quasi_simples_outros)
+# ---- GAMLSS Poisson ----------------------------------------------------------
 
-summary(modelo_quasi_simples_arma)$dispersion
-summary(modelo_quasi_simples_cortante)$dispersion
-summary(modelo_quasi_simples_enforcamento)$dispersion
-summary(modelo_quasi_simples_mausTratos)$dispersion
-summary(modelo_quasi_simples_outros)$dispersion
+# PO
+modelo_gamlss_pois_PO <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
+                             family = PO, data = base_regressao)
+
+summary(modelo_gamlss_pois_PO)
+plot(modelo_gamlss_pois_PO)
+wp(modelo_gamlss_pois_PO)
 
 
-# ---- Modelo GAMLSS: Poisson-Normal (PO com efeito aleatório / PIG) -----------
-# Família PIG (Poisson-Inversa Gaussiana) é a "Poisson-Normal" mais usada em gamlss
-# Alternativa: NBI (Negative Binomial type I) -> equivalente à BN clássica
+# PIG (Poisson-Inversa Gaussiana)
+modelo_gamlss_pois_PIG <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
+                             family = PIG, data = base_regressao)
 
-modelo_gamlss_pn_arma <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                family = PIG, data = base_regressao_arma)
-modelo_gamlss_pn_cortante <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                    family = PIG, data = base_regressao_cortante)
-modelo_gamlss_pn_enforcamento <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                        family = PIG, data = base_regressao_enforcamento)
-modelo_gamlss_pn_mausTratos <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                      family = PIG, data = base_regressao_mausTratos)
-modelo_gamlss_pn_outros <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                  family = PIG, data = base_regressao_outros)
+summary(modelo_gamlss_pois_PIG)
+plot(modelo_gamlss_pois_PIG)
+wp(modelo_gamlss_pois_PIG)
 
-summary(modelo_gamlss_pn_arma)
-summary(modelo_gamlss_pn_cortante)
-summary(modelo_gamlss_pn_enforcamento)
-summary(modelo_gamlss_pn_mausTratos)
-summary(modelo_gamlss_pn_outros)
 
-# Diagnóstico gamlss: worm plot e resíduos quantílicos
-plot(modelo_gamlss_pn_arma);         wp(modelo_gamlss_pn_arma)
-plot(modelo_gamlss_pn_cortante);     wp(modelo_gamlss_pn_cortante)
-plot(modelo_gamlss_pn_enforcamento); wp(modelo_gamlss_pn_enforcamento)
-plot(modelo_gamlss_pn_mausTratos);   wp(modelo_gamlss_pn_mausTratos)
-plot(modelo_gamlss_pn_outros);       wp(modelo_gamlss_pn_outros)
+# ZIG (Poisson inflacionada de zeros)
+modelo_gamlss_pois_ZIP <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
+                                 family = ZIP, data = base_regressao)
 
-# ---- Modelo GAMLSS: Binomial Negativa (NBI) ----------------------------------
+summary(modelo_gamlss_pois_ZIP)
+plot(modelo_gamlss_pois_ZIP)
+wp(modelo_gamlss_pois_ZIP)
 
-modelo_gamlss_bn_arma <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                family = NBI, data = base_regressao_arma)
-modelo_gamlss_bn_cortante <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                    family = NBI, data = base_regressao_cortante)
-modelo_gamlss_bn_enforcamento <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                        family = NBI, data = base_regressao_enforcamento)
-modelo_gamlss_bn_mausTratos <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                      family = NBI, data = base_regressao_mausTratos)
-modelo_gamlss_bn_outros <- gamlss(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                                  family = NBI, data = base_regressao_outros)
+# ---- GAMLSS Binomial Negativa ------------------------------------------------
 
-summary(modelo_gamlss_bn_arma)
-summary(modelo_gamlss_bn_cortante)
-summary(modelo_gamlss_bn_enforcamento)
-summary(modelo_gamlss_bn_mausTratos)
-summary(modelo_gamlss_bn_outros)
+# NBI
+modelo_gamlss_bn_NBI <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
+                              family = NBI, data = base_regressao)
 
-plot(modelo_gamlss_bn_arma);         wp(modelo_gamlss_bn_arma)
-plot(modelo_gamlss_bn_cortante);     wp(modelo_gamlss_bn_cortante)
-plot(modelo_gamlss_bn_enforcamento); wp(modelo_gamlss_bn_enforcamento)
-plot(modelo_gamlss_bn_mausTratos);   wp(modelo_gamlss_bn_mausTratos)
-plot(modelo_gamlss_bn_outros);       wp(modelo_gamlss_bn_outros)
+summary(modelo_gamlss_bn_NBI)
+plot(modelo_gamlss_bn_NBI)
+wp(modelo_gamlss_bn_NBI)
 
-# ---- Comparação entre modelos por categoria ----------------------------------
+# NBII
+modelo_gamlss_bn_NBII <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
+                                family = NBII, data = base_regressao)
 
-GAIC(modelo_gamlss_pn_arma, modelo_gamlss_bn_arma)
-GAIC(modelo_gamlss_pn_cortante, modelo_gamlss_bn_cortante)
-GAIC(modelo_gamlss_pn_enforcamento, modelo_gamlss_bn_enforcamento)
-GAIC(modelo_gamlss_pn_mausTratos, modelo_gamlss_bn_mausTratos)
-GAIC(modelo_gamlss_pn_outros, modelo_gamlss_bn_outros)
+summary(modelo_gamlss_bn_NBII)
+plot(modelo_gamlss_bn_NBII)
+wp(modelo_gamlss_bn_NBII)
 
-# ============================================================================ #
-#                 Modelagem 2023 APENAS
-# ============================================================================ #
+# ZINBI
+modelo_gamlss_bn_ZINBI <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
+                                 family = ZINBI, data = base_regressao)
 
-base_2023 <- base_regressao %>%
-  filter(Ano == 2023)
+summary(modelo_gamlss_bn_ZINBI)
+plot(modelo_gamlss_bn_ZINBI)
+wp(modelo_gamlss_bn_ZINBI)
 
-# ---- Modelo Quasi-Poisson ----------------------------------------------------
 
-modelo_quasi_simples_2023 <- glm(obitos ~ raca_cor + Regiao + log(pop),
-                                 family = quasipoisson, data = base_2023)
-modelo_quasi_simples_2023 <- glm(obitos ~ raca_cor + Regiao + offset(log(pop)),
-                                 family = quasipoisson, data = base_2023)
 
-summary(modelo_quasi_simples_2023)
-summary(modelo_quasi_simples_2023)$dispersion
-plot(modelo_quasi_simples_2023)
 
-fit.model <- modelo_quasi_simples_2023
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
 
-# ---- Modelo GAMLSS: Poisson-Normal (PIG) -------------------------------------
 
-modelo_gamlss_pn_2023 <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
-                                family = PIG, data = base_2023)
-modelo_gamlss_pn_2023 <- gamlss(obitos ~ raca_cor + Regiao + offset(log(pop)),
-                                family = PIG, data = base_2023)
 
-summary(modelo_gamlss_pn_2023)
-plot(modelo_gamlss_pn_2023)
-wp(modelo_gamlss_pn_2023)
 
-# ---- Modelo GAMLSS: Binomial Negativa (NBI) ----------------------------------
-
-modelo_gamlss_bn_2023 <- gamlss(obitos ~ raca_cor + Regiao + log(pop),
-                                family = NBI, data = base_2023)
-modelo_gamlss_bn_2023 <- gamlss(obitos ~ raca_cor + Regiao + offset(log(pop)),
-                                family = NBI, data = base_2023)
-
-summary(modelo_gamlss_bn_2023)
-plot(modelo_gamlss_bn_2023)
-wp(modelo_gamlss_bn_2023)
-
-# ---- Comparação 2023 ---------------------------------------------------------
-
-GAIC(modelo_gamlss_pn_2023, modelo_gamlss_bn_2023)

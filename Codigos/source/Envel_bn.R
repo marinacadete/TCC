@@ -5,7 +5,7 @@
 #       source("envel_nbin.txt")
 #       ligacao logaritmica
 #------------------------------------------------------------------------------------------#
-par(mfrow=c(1,1))
+#par(mfrow=c(1,1))
 X =   model.matrix(fit.model)
 n =   nrow(X)
 p =   ncol(X)
