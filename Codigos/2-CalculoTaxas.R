@@ -120,3 +120,4 @@ taxa_racaCor <- sim %>%
     pop_raca = pop_fem * Proporcao,
     taxa_100k = obitos_fem / pop_raca * 1e5
   )
+

@@ -589,7 +589,7 @@ ggplot(cruz_causa_loco, aes(x = lococor_grupo, y = prop, fill = causa_categoria)
 ggsave("Imagens/4d_causa_local_2023.pdf", width = 158, height = 100, units = "mm")
 
 
-# Faixa etária r Escolaridade
+# Faixa etária e Escolaridade
 fe_esc <- sim2023 %>%
   filter(!is.na(fe_resumida), !is.na(ESC_GRUPO)) %>%
   count(fe_resumida, ESC_GRUPO, name = "obitos") %>%
@@ -617,7 +617,7 @@ ggplot(fe_esc, aes(x = fe_resumida, y = prop, fill = ESC_GRUPO)) +
 
 ggsave("Imagens/4e_faixa_escolaridade_2023.pdf", width = 158, height = 100, units = "mm")
 
-# Faixa etária × Raça/cor
+# Faixa etária e Raça/cor
 fe_raca <- sim2023 %>%
   filter(!is.na(fe_resumida), !is.na(raca_cor)) %>%
   count(fe_resumida, raca_cor, name = "obitos") %>%

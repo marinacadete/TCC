@@ -40,8 +40,13 @@ modelo_pois_identidade <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop
 modelo_pois_inversa <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
                            family = poisson(link = "inverse"), data = base_regressao)
 
+
 AIC(modelo_pois_log, modelo_pois_raiz, modelo_pois_identidade, modelo_pois_inversa)
 BIC(modelo_pois_log, modelo_pois_raiz, modelo_pois_identidade, modelo_pois_inversa)
+deviance(modelo_pois_log)
+deviance(modelo_pois_raiz)
+deviance(modelo_pois_identidade)
+deviance(modelo_pois_inversa)
 
 # ---- Modelo Poisson ----------------------------------------------------------
 
@@ -130,37 +135,6 @@ base_regressao <- sim %>%
 
 base_regressao$raca_cor <- relevel(factor(base_regressao$raca_cor), ref = "Branca")
 base_regressao$Regiao   <- relevel(factor(base_regressao$Regiao), ref = "Norte")
-
-# ============================================================================ #
-#                 Modelagem 2020-2023
-# ============================================================================ #
-
-# ---- Modelo Poisson ----------------------------------------------------------
-
-modelo_pois_simples <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                           family = poisson, data = base_regressao)
-# modelo_pois_simples <- glm(obitos ~ raca_cor + Regiao + offset(log(pop)),
-#                            family = poisson, data = base_regressao)
-
-summary(modelo_pois_simples)
-dispersiontest(modelo_pois_simples)
-plot(modelo_pois_simples)
-fit.model <- modelo_pois_simples
-source("Codigos/source/Envel_pois.R")
-source("Codigos/source/Diag_pois.R")
-
-# ---- Modelo BN ---------------------------------------------------------------
-
-modelo_bn_simples <- glm.nb(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
-                            data = base_regressao)
-# modelo_bn_simples <- glm.nb(obitos ~ raca_cor + Regiao + offset(log(pop)),
-#                             data = base_regressao)
-
-summary(modelo_bn_simples)
-plot(modelo_bn_simples)
-fit.model <- modelo_bn_simples
-source("Codigos/source/Envel_bn.R")
-source("Codigos/source/Diag_bn.R")
 
 # ============================================================================ #
 #                 Modelagem 2023 APENAS
@@ -260,9 +234,9 @@ modelo_bn_simples_2023 <- glm.nb(obitos ~ raca_cor + Regiao + #ESC_GRUPO +
                                    estciv_grupo + 
                                    log(pop),
                                  data = base_regressao)
-modelo_bn_simples_2023 <- glm.nb(obitos ~ raca_cor + Regiao + #ESC_GRUPO + 
-                                   estciv_grupo + offset(log(pop)),
-                                data = base_regressao)
+# modelo_bn_simples_2023 <- glm.nb(obitos ~ raca_cor + Regiao + #ESC_GRUPO + 
+#                                    estciv_grupo + offset(log(pop)),
+#                                 data = base_regressao)
 
 summary(modelo_bn_simples_2023)
 plot(modelo_bn_simples_2023)

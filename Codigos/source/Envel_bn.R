@@ -5,7 +5,21 @@
 #       source("envel_nbin.txt")
 #       ligacao logaritmica
 #------------------------------------------------------------------------------------------#
-#par(mfrow=c(1,1))
+# Descobre automaticamente o nome do modelo atribuído a fit.model
+nome_modelo =   NA
+for(obj in ls(envir = .GlobalEnv)){
+  if(obj != "fit.model" &&
+     identical(get(obj, envir = .GlobalEnv), fit.model)){
+    nome_modelo =   obj
+    break}}
+if(is.na(nome_modelo)) nome_modelo =   "modelo"   # segurança, caso não ache
+
+# Garante que a pasta Imagens exista
+if(!dir.exists("Imagens")) dir.create("Imagens")
+
+pdf(file.path("Imagens", paste0("envelope_", nome_modelo, ".pdf")),
+    width = 7, height = 4)
+#------------------------------------------------------------------------------------------#
 X =   model.matrix(fit.model)
 n =   nrow(X)
 p =   ncol(X)
@@ -39,14 +53,19 @@ for(i in 1:n){
 #
 med =   apply(e,1,mean)
 faixa =   range(td,e1,e2)
-par(pty="s")
-qqnorm(td,xlab="Quantil da N(0,1)",
-       ylab="Componente do Desvio", ylim=faixa, pch=16, main="",cex=1, cex.axis=1.5, cex.lab=1.5)
-par(new=TRUE)
-#
-qqnorm(e1,axes=F,xlab="",ylab="",type="l",ylim=faixa,lty=1, main="",lwd=2)
-par(new=TRUE)
-qqnorm(e2,axes=F,xlab="",ylab="", type="l",ylim=faixa,lty=1, main="",lwd=2)
-par(new=TRUE)
-qqnorm(med,axes=F,xlab="", ylab="", type="l",ylim=faixa,lty=2, main="",lwd=2)
-#------------------------------------------------------------------------------------------#                      
+par(pty = "m", mar = c(4.2, 4.2, 1, 1))
+
+qqnorm(td, xlab = "Quantil da N(0,1)",
+       ylab = "Componente do Desvio", ylim = faixa, pch = 16, main = "",
+       cex = 0.8, cex.lab = 1.1, cex.axis = 1.0)
+par(new = TRUE)
+qqnorm(e1, axes = FALSE, xlab = "", ylab = "", type = "l", ylim = faixa, lty = 1, main = "", lwd = 1.5)
+par(new = TRUE)
+qqnorm(e2, axes = FALSE, xlab = "", ylab = "", type = "l", ylim = faixa, lty = 1, main = "", lwd = 1.5)
+par(new = TRUE)
+qqnorm(med, axes = FALSE, xlab = "", ylab = "", type = "l", ylim = faixa, lty = 2, main = "", lwd = 1.5)
+
+
+
+dev.off()   # fecha o dispositivo e grava o arquivo
+#------------------------------------------------------------------------------------------#

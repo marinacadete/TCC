@@ -1,4 +1,18 @@
 #------------------------------------------------------------#
+# Descobre automaticamente o nome do modelo atribuído a fit.model
+nome_modelo <- NA
+for (obj in ls(envir = .GlobalEnv)) {
+  if (obj != "fit.model" &&
+      identical(get(obj, envir = .GlobalEnv), fit.model)) {
+    nome_modelo <- obj
+    break
+  }
+}
+if (is.na(nome_modelo)) nome_modelo <- "modelo"   # segurança, caso não ache
+
+pdf(file.path("Imagens", paste0("diagnostico_", nome_modelo, ".pdf")),
+    width = 7, height = 5)
+#------------------------------------------------------------#
 X <- model.matrix(fit.model)
 n <- nrow(X)
 p <- ncol(X)
@@ -34,4 +48,5 @@ plot(predict(fit.model),z,xlab="Preditor Linear",
      ylab="Variavel z", pch=16)
 lines(smooth.spline(predict(fit.model), z, df=2))
 par(mfrow=c(1,1))
+dev.off()   # fecha o dispositivo e grava o arquivo
 #---------------------------------------------------------------#

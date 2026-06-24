@@ -1,0 +1,286 @@
+
+source("Codigos/1-Tratamento.R")
+
+# ============================================================================ #
+#                 Modelagem INICIAL
+# ============================================================================ #
+
+# ---- Base para a Regressão ---------------------------------------------------
+
+base_regressao <- sim %>%
+  group_by(Ano, munResUf, Regiao, raca_cor) %>%
+  summarise(obitos = n(), .groups = "drop") %>%
+  left_join(
+    dados_projecao %>%
+      filter(!LOCAL %in% c("Brasil", "Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste")) %>%
+      group_by(munResUf = LOCAL,
+               Ano = as.numeric(ano)) %>%
+      summarise(pop = sum(pop), .groups = "drop"),
+    by = c("munResUf", "Ano"))
+
+# ---- Categorias de Referência ------------------------------------------------
+
+base_regressao$raca_cor      <- relevel(factor(base_regressao$raca_cor), ref = "Branca")
+base_regressao$Regiao        <- relevel(factor(base_regressao$Regiao), ref = "Norte")
+
+# ---- Comparação das Funções de Ligação ---------------------------------------
+
+modelo_pois_log        <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson(link = "log"),      data = base_regressao)
+modelo_pois_raiz       <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson(link = "sqrt"),     data = base_regressao, start = coef(modelo_pois_log))
+modelo_pois_identidade <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson(link = "identity"), data = base_regressao, start = coef(modelo_pois_log))
+modelo_pois_inversa    <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop), family = poisson(link = "inverse"),  data = base_regressao)
+
+AIC(modelo_pois_log, modelo_pois_raiz, modelo_pois_identidade, modelo_pois_inversa)
+BIC(modelo_pois_log, modelo_pois_raiz, modelo_pois_identidade, modelo_pois_inversa)
+deviance(modelo_pois_log); deviance(modelo_pois_raiz); deviance(modelo_pois_identidade); deviance(modelo_pois_inversa)
+
+# ---- Modelo Poisson ----------------------------------------------------------
+
+modelo_pois_simples <- glm(obitos ~ factor(Ano) + raca_cor + Regiao + log(pop),
+                           family = poisson(link = "log"), data = base_regressao)
+
+summary(modelo_pois_simples)
+dispersiontest(modelo_pois_simples)
+fit.model <- modelo_pois_simples
+source("Codigos/source/Envel_pois.R")
+source("Codigos/source/Diag_pois.R")
+
+
+# ============================================================================ #
+#                 Modelagem COM INCREMENTOS
+# ============================================================================ #
+
+# ---- Base para a Regressão ---------------------------------------------------
+
+base_regressao_2 <- sim %>%
+  filter(fe_resumida != "45 a 64 anos",
+         !is.na(ESTCIV),
+         !is.na(ESC),
+         Ano == 2023) %>% 
+  group_by(Ano, munResUf, Regiao, raca_cor, estciv_grupo, ESC_GRUPO) %>%
+  summarise(obitos = n(), .groups = "drop") %>%
+  left_join(
+    dados_projecao %>%
+      filter(!LOCAL %in% c("Brasil", "Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"),
+             IDADE <= 29,
+             ano == 2023) %>%
+      group_by(munResUf = LOCAL,
+               Ano = as.numeric(ano)) %>%
+      summarise(pop = sum(pop), .groups = "drop"),
+    by = c("munResUf", "Ano"))
+
+# ---- Categorias de Referência ------------------------------------------------
+
+base_regressao_2$raca_cor      <- relevel(factor(base_regressao_2$raca_cor), ref = "Branca")
+base_regressao_2$Regiao        <- relevel(factor(base_regressao_2$Regiao), ref = "Norte")
+base_regressao_2$estciv_grupo  <- relevel(factor(base_regressao_2$estciv_grupo), ref = "Com companheiro")
+base_regressao_2$ESC_GRUPO     <- relevel(factor(base_regressao_2$ESC_GRUPO), ref = "Menos de 8 anos de Estudo")
+
+# ---- Comparação das Funções de Ligação ---------------------------------------
+
+modelo_pois_log_2        <- glm(obitos ~ raca_cor + Regiao + estciv_grupo + ESC_GRUPO + log(pop), family = poisson(link = "log"),      data = base_regressao_2)
+# modelo_pois_raiz_2       <- glm(obitos ~ raca_cor + Regiao + estciv_grupo + ESC_GRUPO + log(pop), family = poisson(link = "sqrt"),     data = base_regressao_2, mustart = fitted(modelo_pois_log_2))
+# modelo_pois_identidade_2 <- glm(obitos ~ raca_cor + Regiao + estciv_grupo + ESC_GRUPO + log(pop), family = poisson(link = "identity"), data = base_regressao_2, mustart = fitted(modelo_pois_log_2))
+modelo_pois_inversa_2    <- glm(obitos ~ raca_cor + Regiao + estciv_grupo + ESC_GRUPO + log(pop), family = poisson(link = "inverse"),  data = base_regressao_2)
+
+AIC(modelo_pois_log_2, modelo_pois_inversa_2)
+BIC(modelo_pois_log_2, modelo_pois_inversa_2)
+deviance(modelo_pois_log_2); deviance(modelo_pois_inversa_2)
+
+# ---- Modelo Poisson ----------------------------------------------------------
+
+# # Ligação INVERSA
+# modelo_pois_2 <- glm(obitos ~ raca_cor + Regiao + estciv_grupo + ESC_GRUPO + log(pop),
+#                      family = poisson(link = "inverse"), data = base_regressao_2)
+# 
+# summary(modelo_pois_2)
+# dispersiontest(modelo_pois_2)
+# fit.model <- modelo_pois_2
+# source("Codigos/source/Envel_pois.R")
+# source("Codigos/source/Diag_pois.R")
+
+# Ligação LOG
+modelo_pois_21 <- glm(obitos ~ raca_cor + Regiao + estciv_grupo + ESC_GRUPO + log(pop),
+                           family = poisson(link = "log"), data = base_regressao_2)
+
+summary(modelo_pois_21)
+dispersiontest(modelo_pois_21)
+fit.model <- modelo_pois_21
+source("Codigos/source/Envel_pois.R")
+source("Codigos/source/Diag_pois.R")
+
+# ============================================================================ #
+#                 Modelagem BINOMIAL NEGATIVO
+# ============================================================================ #
+
+# ---- Base para a Regressão ---------------------------------------------------
+
+base_regressao_BN <- sim %>%
+  filter(fe_resumida != "45 a 64 anos",
+         !is.na(ESTCIV),
+         Ano == 2023) %>% 
+  group_by(Ano, munResUf, Regiao, raca_cor, estciv_grupo) %>%
+  summarise(obitos = n(), .groups = "drop") %>%
+  left_join(
+    dados_projecao %>%
+      filter(!LOCAL %in% c("Brasil", "Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste"),
+             #IDADE <= 29,
+             ano == 2023) %>%
+      group_by(munResUf = LOCAL,
+               Ano = as.numeric(ano)) %>%
+      summarise(pop = sum(pop), .groups = "drop"),
+    by = c("munResUf", "Ano"))
+
+# ---- Categorias de Referência ------------------------------------------------
+
+base_regressao_BN$raca_cor      <- relevel(factor(base_regressao_BN$raca_cor), ref = "Branca")
+base_regressao_BN$Regiao        <- relevel(factor(base_regressao_BN$Regiao), ref = "Norte")
+base_regressao_BN$estciv_grupo  <- relevel(factor(base_regressao_BN$estciv_grupo), ref = "Com companheiro")
+
+# ---- Comparação das Funções de Ligação ---------------------------------------
+
+modelo_bn_log        <- glm.nb(obitos ~ raca_cor + Regiao + estciv_grupo + log(pop), link = "log", data = base_regressao_BN)
+# modelo_bn_raiz       <- glm.nb(obitos ~ raca_cor + Regiao + estciv_grupo + log(pop), link = "sqrt", data = base_regressao_BN)
+# modelo_bn_identidade <- glm.nb(obitos ~ raca_cor + Regiao + estciv_grupo + log(pop), link = "identity", data = base_regressao_BN)
+
+AIC(modelo_bn_log)
+BIC(modelo_bn_log)
+deviance(modelo_bn_log)
+
+# ---- Modelo BN ---------------------------------------------------------------
+modelo_bn  <- glm.nb(obitos ~ raca_cor + Regiao + estciv_grupo + log(pop), 
+                     link = "log", data = base_regressao_BN)
+
+summary(modelo_bn)
+fit.model <- modelo_bn
+source("Codigos/source/Envel_bn.R")
+source("Codigos/source/Diag_bn.R")
+
+
+fit <- fitted(modelo_bn)
+which.max(fit)
+sort(h, decreasing = T)
+fit <- which.max(fit)
+base_regressao_BN[fit, ]
+
+# ============================================================================ #
+#                 Modelagem CAUSA
+# ============================================================================ #
+# ---- Base para a Regressão ---------------------------------------------------
+
+base_regressao_causa <- sim %>%
+  filter(fe_resumida != "45 a 64 anos",
+         !is.na(ESTCIV),
+         Ano == 2023) %>% 
+  group_by(Ano, munResUf, Regiao, raca_cor, causa_categoria) %>%
+  summarise(obitos = n(), .groups = "drop") %>%
+  left_join(
+    dados_projecao %>%
+      filter(!LOCAL %in% c("Brasil", "Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste")) %>%
+      group_by(munResUf = LOCAL,
+               Ano = as.numeric(ano)) %>%
+      summarise(pop = sum(pop), .groups = "drop"),
+    by = c("munResUf", "Ano"))
+
+# ---- Categorias de Referência ------------------------------------------------
+
+base_regressao_causa$raca_cor <- relevel(factor(base_regressao_causa$raca_cor), ref = "Branca")
+base_regressao_causa$Regiao   <- relevel(factor(base_regressao_causa$Regiao), ref = "Norte")
+
+# ---- Filtro de Modelos -------------------------------------------------------
+
+base_regressao_causa_arma         <- base_regressao_causa %>% filter(causa_categoria == "Lesão por arma de fogo")
+base_regressao_causa_cortante     <- base_regressao_causa %>% filter(causa_categoria == "Lesão por instrumento perfurante, cortante ou contundente")
+base_regressao_causa_enforcamento <- base_regressao_causa %>% filter(causa_categoria == "Lesão por enforcamento")
+base_regressao_causa_mausTratos   <- base_regressao_causa %>% filter(causa_categoria == "Lesão por maus tratos")
+base_regressao_causa_outros       <- base_regressao_causa %>% filter(causa_categoria == "Outros")
+
+# ---- Modelo Poisson ----------------------------------------------------------
+
+modelo_pois_simples_arma         <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_causa_arma)
+modelo_pois_simples_cortante     <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_causa_cortante)
+modelo_pois_simples_enforcamento <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_causa_enforcamento)
+modelo_pois_simples_mausTratos   <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_causa_mausTratos)
+modelo_pois_simples_outros       <- glm(obitos ~ raca_cor + Regiao + log(pop), family = poisson, data = base_regressao_causa_outros)
+
+summary(modelo_pois_simples_arma)
+summary(modelo_pois_simples_cortante)
+summary(modelo_pois_simples_enforcamento)
+summary(modelo_pois_simples_mausTratos)
+summary(modelo_pois_simples_outros) 
+
+dispersiontest(modelo_pois_simples_arma)
+dispersiontest(modelo_pois_simples_cortante)
+dispersiontest(modelo_pois_simples_enforcamento)
+dispersiontest(modelo_pois_simples_mausTratos)
+dispersiontest(modelo_pois_simples_outros) 
+
+modelos_pois <- list(
+  "Arma de fogo" = modelo_pois_simples_arma,
+  "Cortante"     = modelo_pois_simples_cortante,
+  "Enforcamento" = modelo_pois_simples_enforcamento,
+  "Maus tratos"  = modelo_pois_simples_mausTratos
+  #"Outros"       = modelo_pois_simples_outros
+)
+
+pdf("Imagens/envelopes_pois_2x2.pdf", width = 11, height = 10)
+par(mfrow = c(2, 2))
+for (causa in names(modelos_pois)) {
+  fit.model <- modelos_pois[[causa]]
+  source("Codigos/source/envelope_pois_original.R")
+  title(main = paste("Poisson -", causa))
+}
+par(mfrow = c(1, 1))
+dev.off()
+
+# ---- Modelo BN ---------------------------------------------------------------
+
+modelo_bn_simples_arma         <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_causa_arma)
+modelo_bn_simples_cortante     <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_causa_cortante)
+modelo_bn_simples_enforcamento <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_causa_enforcamento)
+modelo_bn_simples_mausTratos   <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_causa_mausTratos)
+modelo_bn_simples_outros       <- glm.nb(obitos ~ raca_cor + Regiao + log(pop), data = base_regressao_causa_outros)
+
+summary(modelo_bn_simples_arma)
+summary(modelo_bn_simples_cortante)
+summary(modelo_bn_simples_enforcamento)
+summary(modelo_bn_simples_mausTratos)
+summary(modelo_bn_simples_outros) 
+
+modelos_bn <- list(
+  "Arma de fogo" = modelo_bn_simples_arma,
+  "Cortante"     = modelo_bn_simples_cortante,
+  "Enforcamento" = modelo_bn_simples_enforcamento,
+  "Maus tratos"  = modelo_bn_simples_mausTratos
+  #"Outros"       = modelo_bn_simples_outros
+)
+
+pdf("Imagens/envelopes_bn_2x2.pdf", width = 11, height = 10)
+par(mfrow = c(2, 2))
+for (causa in names(modelos_bn)) {
+  fit.model <- modelos_bn[[causa]]
+  source("Codigos/source/envelope_bn_original.R")
+  title(main = paste("BN -", causa))
+}
+par(mfrow = c(1, 1))
+dev.off()
+
+# ============================================================================ #
+#                 Diagnósticos dos Modelos Finais
+# ============================================================================ #
+fit.model <- modelo_bn_simples_arma
+source("Codigos/source/Envel_bn.R")
+source("Codigos/source/Diag_bn.R")
+
+fit.model <- modelo_bn_simples_cortante
+source("Codigos/source/Envel_bn.R")
+source("Codigos/source/Diag_bn.R")
+
+fit.model <- modelo_bn_simples_enforcamento
+source("Codigos/source/Envel_pois.R")
+source("Codigos/source/Diag_pois.R")
+
+fit.model <- modelo_bn_simples_mausTratos
+source("Codigos/source/Envel_pois.R")
+source("Codigos/source/Diag_pois.R")
+

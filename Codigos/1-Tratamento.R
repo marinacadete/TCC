@@ -71,7 +71,7 @@ colunas_excluir <- c(
   "OCUP", "CAUSABAS_O"
 )
 
-# ---- Tratamento principal (SIM) ----------------------------------------------
+# ---- Tratamento --------------------------------------------------------------
 
 sim <- dados_sim_completos %>%
   select(-all_of(colunas_excluir)) %>%

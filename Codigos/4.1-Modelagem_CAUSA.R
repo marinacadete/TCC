@@ -8,7 +8,7 @@ source("Codigos/1-Tratamento.R")
 
 base_regressao <- sim %>%
   filter(Ano == 2023) %>%
-  group_by(Ano, munResUf, Regiao, raca_cor,causa_categoria) %>%
+  group_by(Ano, munResUf, Regiao, raca_cor, fe_resumida, causa_categoria) %>%
   summarise(obitos = n(), .groups = "drop") %>%
   left_join(
     dados_projecao %>%
