@@ -16,144 +16,144 @@ tab_geral <- taxa_fem_br %>%
 
 xtable(tab_geral)
 
-# ---- Distribuição Geografica -------------------------------------------------
-# Região
-tab_regiao <- sim %>%
-  count(Regiao, Ano, name = "obitos") %>%
-  mutate(Ano = as.character(Ano)) %>%
-  pivot_wider(names_from = Ano, values_from = obitos,
-              names_sort = TRUE, names_prefix = "ob_") %>%
-  left_join(
-    taxa_regiao %>%
-      pivot_longer(-Regiao, names_to = "Ano", values_to = "taxa") %>%
-      mutate(taxa = round(taxa, 2)) %>%
-      pivot_wider(names_from = Ano, values_from = taxa,
-                  names_sort = TRUE, names_prefix = "tx_"),
-    by = "Regiao"
-  ) %>%
-  arrange(Regiao) %>%
-  select(Regiao,
-         ob_2020, tx_2020,
-         ob_2021, tx_2021,
-         ob_2022, tx_2022,
-         ob_2023, tx_2023)
-
-xtable(tab_regiao)
-
-regiao_sf <- geobr::read_region(year = 2020) %>%
-  dplyr::select(code_region, name_region, geom) %>%
-  mutate(name_region = recode(name_region,
-                              "Norte"         = "Norte",
-                              "Nordeste"      = "Nordeste",
-                              "Sudeste"       = "Sudeste",
-                              "Sul"           = "Sul",
-                              "Centro Oeste"  = "Centro-Oeste"
-  ))
-
-taxa_regiao_long <- taxa_regiao %>%
-  pivot_longer(-Regiao, names_to = "ano", values_to = "taxa_100k") %>%
-  mutate(ano = as.integer(ano))
-
-dados_mapa_regiao <- regiao_sf %>%
-  left_join(taxa_regiao_long, by = c("name_region" = "Regiao"))
-
-ggplot(dados_mapa_regiao) +
-  geom_sf(aes(fill = taxa_100k), color = "white", linewidth = 0.15) +
-  scale_fill_gradient(
-    name     = "Taxa por 100 mil",
-    low      = "#f0f0f0",
-    high     = "#1a1a1a",
-    na.value = "grey80",
-    guide    = guide_colorbar(
-      title.position = "top",
-      barwidth       = unit(8, "cm"),
-      barheight      = unit(0.3, "cm")
-    )
-  ) +
-  facet_wrap(~ano, nrow = 2) +
-  theme_void(base_family = "Times New Roman") +
-  theme(
-    legend.position   = "bottom",
-    legend.title      = element_text(size = 7, hjust = 0.5),
-    legend.text       = element_text(size = 7),
-    strip.text        = element_text(size = 8, margin = margin(b = 3)),
-    plot.caption      = element_text(size = 6, hjust = 0, margin = margin(t = 6)),
-    panel.spacing     = unit(0.5, "lines"))
-
-ggsave("Imagens/1a_mapa_regiao.pdf", width = 190, height = 150, units = "mm")
-
-
-# UF
-tab_uf <- sim %>%
-  count(munResUf, Ano, name = "obitos") %>%
-  mutate(Ano = as.character(Ano)) %>%
-  pivot_wider(names_from = Ano, values_from = obitos,
-              names_sort = TRUE, names_prefix = "ob_") %>%
-  left_join(
-    taxa_uf %>%
-      select(-codUF) %>%
-      pivot_longer(-munResUf, names_to = "Ano", values_to = "taxa") %>%
-      mutate(taxa = round(taxa, 2)) %>%
-      pivot_wider(names_from = Ano, values_from = taxa,
-                  names_sort = TRUE, names_prefix = "tx_"),
-    by = "munResUf"
-  ) %>%
-  left_join(
-    taxa_uf %>%
-      distinct(munResUf, codUF),
-    by = "munResUf"
-  ) %>%
-  arrange(codUF) %>%
-  select(munResUf,
-         ob_2020, tx_2020,
-         ob_2021, tx_2021,
-         ob_2022, tx_2022,
-         ob_2023, tx_2023)
-
-xtable(tab_uf)
-
-taxa_uf_long <- taxa_uf %>%
-  pivot_longer(-c(codUF, munResUf), names_to = "ano", values_to = "taxa_100k") %>%
-  mutate(ano = as.integer(ano))
-
-ufs_sf <- geobr::read_state(year = 2020) %>%
-  dplyr::select(code_state, name_state, geom) %>%
-  mutate(name_state = recode(name_state,
-                             "Amazônas"            = "Amazonas",
-                             "Mato Grosso Do Sul"  = "Mato Grosso do Sul",
-                             "Rio De Janeiro"      = "Rio de Janeiro",
-                             "Rio Grande Do Norte" = "Rio Grande do Norte",
-                             "Rio Grande Do Sul"   = "Rio Grande do Sul"
-  ))
-
-dados_mapa_painel <- ufs_sf %>%
-  left_join(taxa_uf_long, by = c("name_state" = "munResUf"))
-
-ggplot(dados_mapa_painel) +
-  geom_sf(aes(fill = taxa_100k), color = "white", linewidth = 0.15) +
-  scale_fill_gradient(
-    name     = "Taxa por 100 mil",
-    low      = "#f0f0f0",
-    high     = "#1a1a1a",
-    na.value = "grey80",
-    guide    = guide_colorbar(
-      title.position = "top",
-      barwidth       = unit(8, "cm"),
-      barheight      = unit(0.3, "cm")
-    )
-  ) +
-  facet_wrap(~ano, nrow = 2) +
-  theme_void(base_family = "Times New Roman") +
-  theme(
-    legend.position   = "bottom",
-    legend.title      = element_text(size = 7, hjust = 0.5),
-    legend.text       = element_text(size = 7),
-    strip.text        = element_text(size = 8, margin = margin(b = 3)),
-    plot.caption      = element_text(size = 6, hjust = 0, margin = margin(t = 6)),
-    panel.spacing     = unit(0.5, "lines")
-  )
-
-ggsave("Imagens/1b_mapa_uf.pdf", width = 190, height = 150, units = "mm")
+# # ---- Distribuição Geografica -------------------------------------------------
+# # Região
+# tab_regiao <- sim %>%
+#   count(Regiao, Ano, name = "obitos") %>%
+#   mutate(Ano = as.character(Ano)) %>%
+#   pivot_wider(names_from = Ano, values_from = obitos,
+#               names_sort = TRUE, names_prefix = "ob_") %>%
+#   left_join(
+#     taxa_regiao %>%
+#       pivot_longer(-Regiao, names_to = "Ano", values_to = "taxa") %>%
+#       mutate(taxa = round(taxa, 2)) %>%
+#       pivot_wider(names_from = Ano, values_from = taxa,
+#                   names_sort = TRUE, names_prefix = "tx_"),
+#     by = "Regiao"
+#   ) %>%
+#   arrange(Regiao) %>%
+#   select(Regiao,
+#          ob_2020, tx_2020,
+#          ob_2021, tx_2021,
+#          ob_2022, tx_2022,
+#          ob_2023, tx_2023)
+# 
+# xtable(tab_regiao)
+# 
+# regiao_sf <- geobr::read_region(year = 2020) %>%
+#   dplyr::select(code_region, name_region, geom) %>%
+#   mutate(name_region = recode(name_region,
+#                               "Norte"         = "Norte",
+#                               "Nordeste"      = "Nordeste",
+#                               "Sudeste"       = "Sudeste",
+#                               "Sul"           = "Sul",
+#                               "Centro Oeste"  = "Centro-Oeste"
+#   ))
+# 
+# taxa_regiao_long <- taxa_regiao %>%
+#   pivot_longer(-Regiao, names_to = "ano", values_to = "taxa_100k") %>%
+#   mutate(ano = as.integer(ano))
+# 
+# dados_mapa_regiao <- regiao_sf %>%
+#   left_join(taxa_regiao_long, by = c("name_region" = "Regiao"))
+# 
+# ggplot(dados_mapa_regiao) +
+#   geom_sf(aes(fill = taxa_100k), color = "white", linewidth = 0.15) +
+#   scale_fill_gradient(
+#     name     = "Taxa por 100 mil",
+#     low      = "#f0f0f0",
+#     high     = "#1a1a1a",
+#     na.value = "grey80",
+#     guide    = guide_colorbar(
+#       title.position = "top",
+#       barwidth       = unit(8, "cm"),
+#       barheight      = unit(0.3, "cm")
+#     )
+#   ) +
+#   facet_wrap(~ano, nrow = 2) +
+#   theme_void(base_family = "Times New Roman") +
+#   theme(
+#     legend.position   = "bottom",
+#     legend.title      = element_text(size = 7, hjust = 0.5),
+#     legend.text       = element_text(size = 7),
+#     strip.text        = element_text(size = 8, margin = margin(b = 3)),
+#     plot.caption      = element_text(size = 6, hjust = 0, margin = margin(t = 6)),
+#     panel.spacing     = unit(0.5, "lines"))
+# 
+# ggsave("Imagens/1a_mapa_regiao.pdf", width = 190, height = 150, units = "mm")
+# 
+# 
+# # UF
+# tab_uf <- sim %>%
+#   count(munResUf, Ano, name = "obitos") %>%
+#   mutate(Ano = as.character(Ano)) %>%
+#   pivot_wider(names_from = Ano, values_from = obitos,
+#               names_sort = TRUE, names_prefix = "ob_") %>%
+#   left_join(
+#     taxa_uf %>%
+#       select(-codUF) %>%
+#       pivot_longer(-munResUf, names_to = "Ano", values_to = "taxa") %>%
+#       mutate(taxa = round(taxa, 2)) %>%
+#       pivot_wider(names_from = Ano, values_from = taxa,
+#                   names_sort = TRUE, names_prefix = "tx_"),
+#     by = "munResUf"
+#   ) %>%
+#   left_join(
+#     taxa_uf %>%
+#       distinct(munResUf, codUF),
+#     by = "munResUf"
+#   ) %>%
+#   arrange(codUF) %>%
+#   select(munResUf,
+#          ob_2020, tx_2020,
+#          ob_2021, tx_2021,
+#          ob_2022, tx_2022,
+#          ob_2023, tx_2023)
+# 
+# xtable(tab_uf)
+# 
+# taxa_uf_long <- taxa_uf %>%
+#   pivot_longer(-c(codUF, munResUf), names_to = "ano", values_to = "taxa_100k") %>%
+#   mutate(ano = as.integer(ano))
+# 
+# ufs_sf <- geobr::read_state(year = 2020) %>%
+#   dplyr::select(code_state, name_state, geom) %>%
+#   mutate(name_state = recode(name_state,
+#                              "Amazônas"            = "Amazonas",
+#                              "Mato Grosso Do Sul"  = "Mato Grosso do Sul",
+#                              "Rio De Janeiro"      = "Rio de Janeiro",
+#                              "Rio Grande Do Norte" = "Rio Grande do Norte",
+#                              "Rio Grande Do Sul"   = "Rio Grande do Sul"
+#   ))
+# 
+# dados_mapa_painel <- ufs_sf %>%
+#   left_join(taxa_uf_long, by = c("name_state" = "munResUf"))
+# 
+# ggplot(dados_mapa_painel) +
+#   geom_sf(aes(fill = taxa_100k), color = "white", linewidth = 0.15) +
+#   scale_fill_gradient(
+#     name     = "Taxa por 100 mil",
+#     low      = "#f0f0f0",
+#     high     = "#1a1a1a",
+#     na.value = "grey80",
+#     guide    = guide_colorbar(
+#       title.position = "top",
+#       barwidth       = unit(8, "cm"),
+#       barheight      = unit(0.3, "cm")
+#     )
+#   ) +
+#   facet_wrap(~ano, nrow = 2) +
+#   theme_void(base_family = "Times New Roman") +
+#   theme(
+#     legend.position   = "bottom",
+#     legend.title      = element_text(size = 7, hjust = 0.5),
+#     legend.text       = element_text(size = 7),
+#     strip.text        = element_text(size = 8, margin = margin(b = 3)),
+#     plot.caption      = element_text(size = 6, hjust = 0, margin = margin(t = 6)),
+#     panel.spacing     = unit(0.5, "lines")
+#   )
+# 
+# ggsave("Imagens/1b_mapa_uf.pdf", width = 190, height = 150, units = "mm")
 
 # ---- Perfil da Vítima --------------------------------------------------------
 # ---- Raça/Cor ----------------------------------------------------------------
@@ -562,6 +562,7 @@ xtable(cruz_causa_loco)
 ggplot(cruz_causa_loco, aes(x = lococor_grupo, y = prop, fill = causa_categoria)) +
   geom_col(position = "fill", color = "white", linewidth = 0.3) +
   scale_y_continuous(labels = percent_format()) +
+  scale_x_discrete(labels = scales::label_wrap(12)) +
   scale_fill_manual(values = cinzas_5, name = "Causa") +
   labs(x = "Local de ocorrência", y = "Proporção de óbitos (%)") +
   theme_light() +
