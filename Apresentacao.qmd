@@ -67,20 +67,17 @@ Adotou-se a **ligação logarítmica**, que garante $\mu>0$ e efeitos em razões
 
 \vspace{0.4em}
 \begin{alertblock}{Restrição: equidispersão}
-A Poisson impõe $E(Y) = \operatorname{Var}(Y) = \mu$. Se a variância
-excede a média (\textbf{sobredispersão}), o ajuste falha.
+A Poisson impõe $E(Y) = \operatorname{Var}(Y) = \mu$. Se a variância excede a média (\textbf{sobredispersão}), o ajuste falha.
 \end{alertblock}
 
 ## Sobredispersão e Binomial Negativa
 
-A sobredispersão surge de **heterogeneidade** entre as unidades. Modelando
-$Y\mid Z$ com média $Z$ e $E(Z)=\mu$:
+A sobredispersão surge de **heterogeneidade** entre as unidades. Modelando $Y\mid Z$ com média $Z$ e $E(Z)=\mu$:
 $$
 \operatorname{Var}(Y) = \mu + \operatorname{Var}(Z) > \mu
 $$
 
-A mistura **Poisson-Gama** dá origem à **Binomial Negativa**,
-$Y \sim BN(\mu,\phi)$:
+A mistura **Poisson-Gama** dá origem à **Binomial Negativa**, $Y \sim BN(\mu,\phi)$:
 $$
 E(Y) = \mu, \qquad \operatorname{Var}(Y) = \mu + \frac{\mu^2}{\phi}
 $$
@@ -106,10 +103,8 @@ A adequação da distribuição é avaliada pelo **gráfico normal de probabilid
 
 **Recorte**
 
-- Óbitos por **agressão** (CID-10 X85-Y09) de **mulheres de 15 a 64 anos**,
-  2020-2023.
-- Variável resposta: **contagem de óbitos**; $\log(\text{pop})$ controla o
-  tamanho populacional.
+- Óbitos por **agressão** (CID-10 X85-Y09) de **mulheres de 15 a 64 anos**,   2020-2023.
+- Variável resposta: **contagem de óbitos**; $\log(\text{pop})$ controla o tamanho populacional.
 
 ## Tratamento das variáveis
 
@@ -118,8 +113,7 @@ Variáveis recategorizadas para reduzir fragmentação:
 - **Raça/cor:** Branca (branca+amarela) / Negra (preta+parda).
 - **Faixa etária:** 15-29, 30-44, 45-64 anos.
 - **Estado civil:** com / sem companheiro.
-- **Meio de agressão (CID-10):** arma de fogo, instrumento
-  perfurante/cortante/contundent, enforcamento, maus-tratos, outros.
+- **Meio de agressão (CID-10):** arma de fogo, instrumento perfurante/cortante/contundente, enforcamento, maus-tratos, outros.
 
 
 # Análise Descritiva
@@ -136,18 +130,15 @@ Variáveis recategorizadas para reduzir fragmentação:
 : Total de óbitos e taxa por 100 mil mulheres.
 
 \vspace{0.3em}
-Padrão **estável**: a taxa diminuiu pouco mais de ($2\%$), de 4,51 para 4,41,
-sem tendência clara - indício que reaparece na modelagem.
+Padrão **estável**: a taxa diminuiu pouco mais de ($2\%$), de 4,51 para 4,41, sem tendência clara (indício que reaparece na modelagem).
 
 ## Perfil da vítima
 
 :::: {.columns}
 
 ::: {.column width="55%"}
-- **Raça/cor:** mulheres negras são $\approx 70\%$ das vítimas, ante
-  $\approx 55\%$ da população feminina - sobremortalidade clara
-- **Faixa etária:** o risco concentra-se nas mais jovens; 15-29 anos
-  com as maiores taxas ($\approx 6$/100 mil).
+- **Raça/cor:** mulheres negras são $\approx 70\%$ das vítimas, ante $\approx 55\%$ da população feminina - sobremortalidade clara
+- **Faixa etária:** o risco concentra-se nas mais jovens; 15-29 anos com as maiores taxas ($\approx 6$/100 mil).
 - **Estado civil:** $\approx 73\%$ sem companheiro.
 :::
 
@@ -171,6 +162,8 @@ sem tendência clara - indício que reaparece na modelagem.
 - **Sudeste**: menor taxa do país em todos os anos (< 2,9/100 mil), apesar de concentrar a maior população feminina.
 ::::
 
+::::
+
 ## Causa × Local de ocorrência (2023)
 
 :::: {.columns}
@@ -181,8 +174,7 @@ sem tendência clara - indício que reaparece na modelagem.
 
 ::: {.column width="50%"}
 - **Arma de fogo** predomina na **via pública** (66\%) - violência urbana.
-- **Instrumento perfurante/cortante** concentra-se no **domicílio**
-  (42\% vs. 23\% na via pública) - associação com violência doméstica.
+- **Instrumento perfurante/cortante** concentra-se no **domicílio** (42\% vs. 23\% na via pública) - associação com violência doméstica.
 :::
 
 ::::
@@ -197,8 +189,7 @@ sem tendência clara - indício que reaparece na modelagem.
 
 ::: {.column width="50%"}
 - **15-29 anos:** arma de fogo domina (62,5\%).
-- **45-64 anos:** inverte - instrumento perfurante/cortante lidera
-  (43,1\%).
+- **45-64 anos:** inverte - instrumento perfurante/cortante lidera (43,1\%).
 - **Maus-tratos** cresce com a idade (1,6\% $\to$ 4,8\%).
 :::
 
@@ -208,11 +199,9 @@ sem tendência clara - indício que reaparece na modelagem.
 
 ## Estratégia incremental
 
-A modelagem seguiu uma lógica incremental ($\alpha = 0{,}05$; ligação log;
-seleção por AIC/BIC/desvio e envelope):
+A modelagem seguiu uma lógica incremental ($\alpha = 0{,}05$; ligação log; seleção por AIC/BIC/desvio e envelope):
 
-1. **Poisson inicial** - contagem de óbitos $\sim$ ano + raça/cor +
-   região + $\log(\text{pop})$.
+1. **Poisson inicial** - contagem de óbitos $\sim$ ano + raça/cor + região + $\log(\text{pop})$.
 2. Diante de **sobredispersão**, ajustes e migração para a **BN**.
 3. **Estratificação por causa** da morte.
 
@@ -230,8 +219,7 @@ Estimativas (ligação log) - destaque para raça/cor:
 
 \vspace{0.3em}
 \begin{alertblock}{Diagnóstico}
-Vários pontos \textbf{fora} do envelope e teste de dispersão
-$= 20{,}79$ ($p<0{,}0001$): \textbf{sobredispersão} confirmada.
+Vários pontos \textbf{fora} do envelope e teste de dispersão $= 20{,}79$ ($p<0{,}0001$): \textbf{sobredispersão} confirmada.
 \end{alertblock}
 
 ## Modelo Binomial Negativo (geral)
@@ -249,13 +237,11 @@ $$
 
 : Referências: Branca, Norte, Com companheiro. Desvio $= 98{,}49$.
 
-\small Raça/cor e estado civil significativos. Nenhuma região difere do
-Norte. Envelope: forte melhora frente ao Poisson.
+\small Raça/cor e estado civil significativos. Nenhuma região difere do Norte. Envelope: forte melhora frente ao Poisson.
 
 ## Modelos por causa: escolha da distribuição
 
-Por causa (2023): ajusta-se Poisson, testa-se dispersão e adota-se BN
-apenas quando há sobredispersão.
+Por causa (2023): ajusta-se Poisson, testa-se dispersão e adota-se BN apenas quando há sobredispersão.
 
 | Causa                  | Dispersão | $p$-valor   | Modelo final  |
 |:-----------------------|:---------:|:-----------:|:-------------:|
@@ -277,8 +263,7 @@ Efeito de **raça/cor (Negra)** em razões de taxas, por causa:
 | Maus-tratos            | Poisson    | $\approx 2{,}0$ | $0{,}018$ |
 | Enforcamento           | Poisson    | $\approx 1{,}4$ | $0{,}074$ |
 
-: $\log(\text{pop}) \approx 1$ em todas; efeito de região frágil e
-dependente da causa.
+: $\log(\text{pop}) \approx 1$ em todas; efeito de região frágil e dependente da causa.
 
 ## Diagnóstico final: envelopes por causa
 
@@ -289,10 +274,8 @@ dependente da causa.
 :::
 
 ::: {.column width="50%"}
-- Em **arma de fogo** e **perfurante/cortante**, o Poisson deixava muitos pontos
-  fora; a **BN** corrige.
-- Em **enforcamento** e **maus-tratos**, os pontos já ficam mais dentro das
-  bandas sob **Poisson**.
+- Em **arma de fogo** e **perfurante/cortante**, o Poisson deixava muitos pontos fora; a **BN** corrige.
+- Em **enforcamento** e **maus-tratos**, os pontos já ficam mais dentro das bandas sob **Poisson**.
 :::
 
 ::::
@@ -308,14 +291,12 @@ Combinando descritiva e modelagem, o maior risco recai sobre:
 - **sem companheiro**,
 - nas regiões **Norte e Nordeste**.
 
-Quanto à causa: **arma de fogo** predomina na via pública;
-**instrumento perfurante/cortante**, no domicílio.
+Quanto à causa: **arma de fogo** predomina na via pública; **instrumento perfurante/cortante**, no domicílio.
 
 ## Conclusão
 
 - **Estabilidade temporal:** o ano não foi significativo em nenhum modelo, ou seja, não há redução relevante no período.
-- A **estratificação por causa** revelou que a sobredispersão se concentra
-  nas formas de agressão mais frequentes.
+- A **estratificação por causa** revelou que a sobredispersão se concentra nas formas de agressão mais frequentes.
 
 **Limitações**
 
@@ -326,19 +307,10 @@ Quanto à causa: **arma de fogo** predomina na via pública;
 
 \footnotesize
 
-MEIRA, K. C. et al. Temporal effects of corrected female homicide
-mortality estimates in Northeast Brazil. [S.l.]: Fundacao Oswaldo Cruz,
-2021.
+MEIRA, K. C. et al. Temporal effects of corrected female homicide mortality estimates in Northeast Brazil. [S.l.]: Fundacao Oswaldo Cruz, 2021.
 
-MEIRA, K. C. et al. Tendência temporal da mortalidade por
-homicídios femininos por arma de fogo nos estados da região nordeste
-do brasil no período 2000-2019. Ciência Saúde Coletiva, FapUNIFESP
-(SciELO), v. 29, 2024. ISSN 1413-8123.
+MEIRA, K. C. et al. Tendência temporal da mortalidade por homicídios femininos por arma de fogo nos estados da região nordeste do brasil no período 2000-2019. Ciência Saúde Coletiva, FapUNIFESP (SciELO), v. 29, 2024. ISSN 1413-8123.
 
-PAULA, G. A. Modelos de Regressão com apoio computacional. São
-Paulo, Brasil: Instituto de Matemática e Estatística - USP, 2023.
+PAULA, G. A. Modelos de Regressão com apoio computacional. São Paulo, Brasil: Instituto de Matemática e Estatística - USP, 2023.
 
 NERY, M. G. D. et al. Fatores associados ao homicídio de mulheres no Brasil, segundo raça/cor, 2016-2020. Ciência & Saúde Coletiva, FapUNIFESP (SciELO), v. 29, n. 3, 2024.
-
-<!-- \vspace{1em} -->
-<!-- \centering \Large Obrigada! -->
