@@ -2,8 +2,6 @@
 title: "Modelagem estatística aplicada à ocorrência de homicídios de mulheres no Brasil, entre 2020 e 2023"
 author: "Marina Gabriela de Oliveira Cadete"
 institute: "Orientador: Prof. Dr. Leandro Tavares Correia"
-# date: today
-# date-format: long
 lang: pt
 format:
   beamer:
@@ -23,7 +21,6 @@ format:
 
 ---
 
-
 ```{r setup}
  #| include: false
  source("Codigos/3-Descritiva.R")
@@ -33,18 +30,13 @@ format:
 
 ## Motivação
 
-- A violência de gênero tem profundo impacto social; o feminicídio é seu
-  ápice (Lei nº 13.104/2015), com pena ampliada para até 40 anos
-  (Lei nº 14.994/2024).
-- Apesar das políticas de enfrentamento, os dados mostram que o problema
-  **persiste**.
-- Não há base nacional padronizada de feminicídios: a caracterização
-  depende de análise policial não uniforme entre as UFs.
+- A violência de gênero tem profundo impacto social; o feminicídio é seu ápice (Lei nº 13.104/2015), com pena ampliada para até 40 anos (Lei nº 14.994/2024).
+- Apesar das políticas de enfrentamento, os dados mostram que o problema **persiste**.
+- Não há base nacional padronizada de feminicídios: a caracterização depende de análise policial não uniforme entre as UFs.
 
 \vspace{0.4em}
 \begin{alertblock}{Estratégia}
-Usam-se os \textbf{óbitos de mulheres por agressão} (SIM) como
-\emph{proxy} do feminicídio - estratégia já adotada na em outros estudos
+Usam-se os \textbf{óbitos de mulheres por agressão} (SIM) como \emph{proxy} do feminicídio - estratégia já adotada na em outros estudos (Nery et al. (2024) e Meira et al. (2021))
 \end{alertblock}
 
 
@@ -52,7 +44,7 @@ Usam-se os \textbf{óbitos de mulheres por agressão} (SIM) como
 
 ## Modelo Linear Generalizado
 
-Propostos por Nelder e Wedderburn (1972), os MLG ampliam a regressão linear a respostas da família exponencial. São caracterizados por duas componentes.
+Propostos por Nelder e Wedderburn (1972), MLG é uma generalização da regressão linear que permite que a variável resposta siga distribuições diferentes da normal. São caracterizados por duas componentes.
 
 **Componente aleatória** - $Y_i$ na família exponencial:
 $$
@@ -66,8 +58,7 @@ $$
 
 ## Poisson: ponto de partida
 
-Para dados de contagem, o modelo **Poisson** é o MLG natural. Para
-$Y \sim \text{Poisson}(\mu)$:
+Para dados de contagem, o modelo **Poisson** é o MLG natural. Para $Y \sim \text{Poisson}(\mu)$:
 $$
 f(y; \mu) = \frac{e^{-\mu}\,\mu^{y}}{y!}, \qquad y = 0,1,2,\dots
 $$
@@ -164,6 +155,20 @@ sem tendência clara - indício que reaparece na modelagem.
 ![](Imagens/4f_faixa_raca_2023)
 :::
 
+::::
+
+## Distribuição geográfica
+
+:::: {.columns}
+
+::: {.column width="50%"}
+![](imagens/1a_mapa_regiao.pdf)
+:::
+
+::: {.column width="50%"}
+- **Nordeste**: maior número absoluto em todos os anos (1.332 → 1.279 óbitos), com taxa entre 6,27 e 6,67/100 mil.
+- **Norte**: taxa oscila mais e chega a **superar** a do Nordeste em alguns anos (6,86 em 2021 e 6,35 em 2023, contra 6,56 e 6,32 do Nordeste). Ou seja, as duas regiões revezam a maior taxa, embora o Nordeste concentre o maior volume.
+- **Sudeste**: menor taxa do país em todos os anos (< 2,9/100 mil), apesar de concentrar a maior população feminina.
 ::::
 
 ## Causa × Local de ocorrência (2023)
